@@ -118,7 +118,7 @@ class Chess:
             print(f'{_count}', end='  ')
             
             for j in i:
-                print((('| |' if _aux else '|-|') if j==[] else (f'|{j.getSkin()}|' if j!=highlight else (f'\033[1m'+'|{j}|'+'\033[0;0m'))), end=' ')
+                print((('| |' if _aux else '|-|') if j==[] else (f'|{j.getSkin()}|' if j!=highlight else (f'\033[1m'+f'|{j.getSkin()}|'))), end=' ')
                 if _aux:
                     _aux = False
                 else: _aux = True
@@ -166,7 +166,7 @@ class Chess:
         return self.pieces
 
 def main():
-    while True:
+    # while True:
         chess = Chess()
 
         # time.sleep(1)
@@ -176,6 +176,5 @@ def main():
         chess.updateFrame()
 
         # chess.selectPiece()
-        input()
 
 if __name__ == '__main__': main()
