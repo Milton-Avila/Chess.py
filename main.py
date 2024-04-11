@@ -79,7 +79,7 @@ class Chess:
             case 'Pawn':
                 self.movePawn(piece, xy)
             case 'Rook':
-                pass
+                self.movePawn(piece, xy)
             case 'Knigh':
                 pass
             case 'Bishop':
@@ -92,26 +92,26 @@ class Chess:
     def movePawn(self,) -> None:
         pass
 
+    def moveRook(self,) -> None:
+        pass
+
+    #...
+
     def selectPiece(self) -> None:
         while True:
             try:
+                self.clearLine()
                 xy: str = input('Insert the coordinates of the selected piece: ')
                 selectedPiece: Piece | list = self.table[-int(xy[1])][self.Letters.get(xy[0])]
 
                 if selectedPiece != []:
                     self.selectedPiece = selectedPiece
-                    self.highlightSelected(selectedPiece)
                 break
 
             except:
-                self.clearLine()
                 print('Invalid, try again.')
                 time.sleep(1)
                 self.clearLine()
-
-
-    def highlightSelected(self, piece: Piece) -> None:
-        pass
 
     def inputOnFrame(self, xy: list, value: Piece, update: bool = True) -> None:
         self.table[-(xy[1])][self.Letters.get(xy[0])] = value
