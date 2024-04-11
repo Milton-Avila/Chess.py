@@ -57,7 +57,7 @@ class Chess:
         self.Letters: dict = {'A': 0, 'B': 1, 'C': 2, 'D': 3, 'E': 4, 'F': 5, 'G': 6, 'H': 7}
         self.Team: dict = {'Ally': 0, 'Enemy': 1}
 
-        self.selectedPiece: Piece
+        self.selectedPiece: Piece | None = None
         self.turn: str = 'Ally'
         self.allys: dict = {}
         self.enemy: dict = {}
@@ -92,14 +92,23 @@ class Chess:
     def movePawn(self,) -> None:
         pass
 
-    # def selectPiece(self) -> None:
-    #     xy: list = input('Insert the coordinates of the selected piece: ')
-    #     selected: Piece = self.table[-xy[1]][self.Letters.get(xy[0])]
+    def selectPiece(self) -> None:
+        while True:
+            try:
+                xy: str = input('Insert the coordinates of the selected piece: ')
+                selectedPiece: Piece | list = self.table[-int(xy[1])][self.Letters.get(xy[0])]
 
-    #     if selected != []:
-    #         self.selectedPiece = selected
-    #         self.highlightSelected(self.allys[1])
-    #         pass
+                if selectedPiece != []:
+                    self.selectedPiece = selectedPiece
+                    self.highlightSelected(selectedPiece)
+                break
+
+            except:
+                self.clearLine()
+                print('Invalid, try again.')
+                time.sleep(1)
+                self.clearLine()
+
 
     def highlightSelected(self, piece: Piece) -> None:
         pass
@@ -108,7 +117,7 @@ class Chess:
         self.table[-(xy[1])][self.Letters.get(xy[0])] = value
         if update: self.updateFrame()
 
-    def updateFrame(self, highlight: Piece = None) -> None:
+    def updateFrame(self) -> None:
         _aux: bool = True
         _count: int = 9
         os.system('cls')
@@ -118,12 +127,27 @@ class Chess:
             print(f'{_count}', end='  ')
             
             for j in i:
-                print((('| |' if _aux else '|-|') if j==[] else (f'|{j.getSkin()}|' if j!=highlight else (f'\033[1m'+f'|{j.getSkin()}|'))), end=' ')
+                # print((('| |' if _aux else '|-|') if j==[] else (f'|{j.getSkin()}|' if j.id!=self.selectedPiece.id else (f'\033[1m'+f'|{j.getSkin()}|') if self.selectedPiece!=None else None)), end=' ')
+                # Traduzido:
+                if j==[]:
+                    print('| |' if _aux else '|-|', end=' ')
+
+                elif self.selectedPiece != None:
+
+                    if j == self.selectedPiece:
+                        print('\033[1m'+f'|{j.getSkin()}|', end='\033[0;0m ')
+                    
+                    else:
+                        print(f'|{j.getSkin()}|', end=' ')
+
+                else:
+                    print(f'|{j.getSkin()}|', end=' ')
+
                 if _aux:
                     _aux = False
                 else: _aux = True
             print()
-            
+
             if _aux:
                 _aux = False
             else: _aux = True
@@ -131,7 +155,7 @@ class Chess:
 
     def createFrame(self) -> None:
         self.table: list = [[[] for _ in range(8)] for _ in range(8)]
-        [[(self.inputOnFrame(self.pieces[i][p].xy, self.pieces[i][p], False), print(p)) for p in self.pieces[i]] for i in range(0,2)]
+        [[(self.inputOnFrame(self.pieces[i][p].xy, self.pieces[i][p], False)) for p in self.pieces[i]] for i in range(0,2)]
 
     def createPieces(self) -> None:
         # Pawns
@@ -159,22 +183,25 @@ class Chess:
         self.createPiece(King, ['E',8], 'Enemy')
 
     def createPiece(self, piece: Piece, xy: list, team: str) -> Piece:
-        Piece_ = piece(len(self.pieces[self.Team.get(team)]), xy)
+        Piece_ = piece(len(self.pieces[0]) + len(self.pieces[1]), xy)
         self.pieces[self.Team.get(team)].update({Piece_.id: Piece_})
+
+    def clearLine(self) -> None:
+        print("\033[A                                                            \033[A")
 
     def getPiecesOnboard(self) -> list:
         return self.pieces
 
 def main():
-    # while True:
-        chess = Chess()
+    chess = Chess()
+    while True:
 
         # time.sleep(1)
 
-        # Chess.inputOnFrame(['A', 5], 't')
-
         chess.updateFrame()
 
-        # chess.selectPiece()
+        chess.selectPiece()
+
+        # chess.inputOnFrame(['A', 5], Pawn(99, ['E', 4]))
 
 if __name__ == '__main__': main()
