@@ -58,6 +58,7 @@ class Chess:
         self.Team: dict = {'Ally': 0, 'Enemy': 1}
 
         self.selectedPiece: Piece | None = None
+        self._aux: bool = True
         self.turn: str = 'Ally'
         self.allys: dict = {}
         self.enemy: dict = {}
@@ -106,10 +107,15 @@ class Chess:
 
                 if selectedPiece != []:
                     self.selectedPiece = selectedPiece
+
+                else:
+                    print('Selected a blank space, select a piece')   
+                    time.sleep(1)
+                    self.clearLine()
                 break
 
             except:
-                print('Invalid, try again.')
+                print('Invalid input, try again.')
                 time.sleep(1)
                 self.clearLine()
 
@@ -118,7 +124,6 @@ class Chess:
         if update: self.updateFrame()
 
     def updateFrame(self) -> None:
-        _aux: bool = True
         _count: int = 9
         os.system('cls')
         
@@ -127,10 +132,8 @@ class Chess:
             print(f'{_count}', end='  ')
             
             for j in i:
-                # print((('| |' if _aux else '|-|') if j==[] else (f'|{j.getSkin()}|' if j.id!=self.selectedPiece.id else (f'\033[1m'+f'|{j.getSkin()}|') if self.selectedPiece!=None else None)), end=' ')
-                # Traduzido:
                 if j==[]:
-                    print('| |' if _aux else '|-|', end=' ')
+                    print('| |' if self._aux else '|-|', end=' ')
 
                 elif self.selectedPiece != None:
 
@@ -143,14 +146,10 @@ class Chess:
                 else:
                     print(f'|{j.getSkin()}|', end=' ')
 
-                if _aux:
-                    _aux = False
-                else: _aux = True
+                self.updAux()
             print()
 
-            if _aux:
-                _aux = False
-            else: _aux = True
+            self.updAux()
         print('    ', end=''), [print(l, end='   ') for l in self.Letters], print('\n')
 
     def createFrame(self) -> None:
@@ -191,6 +190,11 @@ class Chess:
 
     def getPiecesOnboard(self) -> list:
         return self.pieces
+    
+    def updAux(self) -> None:
+        if self._aux:
+            self._aux = False
+        else: self._aux = True
 
 def main():
     chess = Chess()
