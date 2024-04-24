@@ -101,7 +101,7 @@ class Chess:
     def selectPiece(self) -> None:
         while True:
             try:
-                self.clearLine()
+                self.clearLine(), print()
                 xy: str = input('Insert the coordinates of the selected piece: ')
                 selectedPiece: Piece | list = self.table[-int(xy[1])][self.Letters.get(xy[0])]
 
