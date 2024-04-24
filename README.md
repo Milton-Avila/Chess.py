@@ -2,7 +2,7 @@
 
 The code is not finished.
 
-* Design:
+* Design: /n
 ![image](https://github.com/Milton-Avila/Chess.py/assets/79611719/a98cac4a-4928-4ba4-8eb0-7dc319252e3d)
 
 * Alternative:
