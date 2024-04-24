@@ -4,7 +4,7 @@ The code is not finished.
 
 * Design: <br/>
 <div align="center">
-  <img src"https://github.com/Milton-Avila/Chess.py/assets/79611719/a98cac4a-4928-4ba4-8eb0-7dc319252e3d"/>
+  <img src="https://github.com/Milton-Avila/Chess.py/assets/79611719/a98cac4a-4928-4ba4-8eb0-7dc319252e3d"/>
 </div>
 
 * Alternative: <br/>
