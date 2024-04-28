@@ -1,11 +1,12 @@
 import os, time
 
 class Piece:
-    def __init__(self, id: int, xy: list) -> None:
-        self.Skins1: list = ['p', 't', 'k', 'b', 'q', 'w']
-        self.Skins2: list = ['♙', '♖', '♘', '♗', '♕', '♔']
+    def __init__(self, id: int, xy: list, ally: int = 0) -> None:
+        self.Skins1: list = [['p', 't', 'k', 'b', 'q', 'w'], ['P', 'T', 'K', 'B', 'Q', 'W']]
+        self.Skins2: list = [['♙', '♖', '♘', '♗', '♕', '♔'], ['♟', '♜', '♞', '♝', '♛', '♚']]
+        self.Skins3: list = [[], []]            # Free 2 custom
 
-        self.Skins: list = self.Skins2
+        self.Skins: list = self.Skins2          # Select Preferred skin
         self.id: int = id
         self.skin: str
         self.type: str
@@ -16,46 +17,47 @@ class Piece:
         return self.skin
 
 class Pawn(Piece):
-    def __init__(self, id: int, xy: list) -> None:
-        super().__init__(id, xy)
+    def __init__(self, id: int, xy: list, ally: int) -> None:
+        super().__init__(id, xy, ally)
         self.moved: bool = False
-        self.skin: str = self.Skins[0]
+        self.skin: str = self.Skins[ally][0]
         self.type: str = 'Pawn'
 
 class Rook(Piece):
-    def __init__(self, id: int, xy: list) -> None:
+    def __init__(self, id: int, xy: list, ally: int) -> None:
         super().__init__(id, xy)
-        self.skin: str = self.Skins[1]
+        self.skin: str = self.Skins[ally][1]
         self.type: str = 'Rook'
 
 class Knight(Piece):
-    def __init__(self, id: int, xy: list) -> None:
+    def __init__(self, id: int, xy: list, ally: int) -> None:
         super().__init__(id, xy)
-        self.skin: str = self.Skins[2]
+        self.skin: str = self.Skins[ally][2]
         self.type: str = 'Knigh'
 
 class Bishop(Piece):
-    def __init__(self, id: int, xy: list) -> None:
+    def __init__(self, id: int, xy: list, ally: int) -> None:
         super().__init__(id, xy)
-        self.skin: str = self.Skins[3]
+        self.skin: str = self.Skins[ally][3]
         self.type: str = 'Bishop'
 
 class Queen(Piece):
-    def __init__(self, id: int, xy: list) -> None:
+    def __init__(self, id: int, xy: list, ally: int) -> None:
         super().__init__(id, xy)
-        self.skin: str = self.Skins[4]
+        self.skin: str = self.Skins[ally][4]
         self.type: str = 'Queen'
 
 class King(Piece):
-    def __init__(self, id: int, xy: list) -> None:
+    def __init__(self, id: int, xy: list, ally: int) -> None:
         super().__init__(id, xy)
-        self.skin: str = self.Skins[5]
+        self.skin: str = self.Skins[ally][5]
         self.type: str = 'King'
 
 class Chess:
     def __init__(self) -> None:
         self.Letters: dict = {'A': 0, 'B': 1, 'C': 2, 'D': 3, 'E': 4, 'F': 5, 'G': 6, 'H': 7}
-        self.Team: dict = {'Ally': 0, 'Enemy': 1}
+        self.Team: dict = {'Enemy': 0, 'Ally': 1}
+        self.BoardSkin: dict = {'cellWall': '|', 'darkCell': '-'}   # Select preferred theme
 
         self.selectedPiece: Piece | None = None
         self._aux: bool = True
@@ -123,6 +125,13 @@ class Chess:
         self.table[-(xy[1])][self.Letters.get(xy[0])] = value
         if update: self.updateFrame()
 
+    def getCell(self, type: int) -> str:
+        match type:
+            case 1:
+                return f"{self.BoardSkin.get('cellWall')} {self.BoardSkin.get('cellWall')}"
+            case 2:
+                return f"{self.BoardSkin.get('cellWall')}{self.BoardSkin.get('darkCell')}{self.BoardSkin.get('cellWall')}"
+
     def updateFrame(self) -> None:
         _count: int = 9
         os.system('cls')
@@ -133,12 +142,12 @@ class Chess:
             
             for j in i:
                 if j==[]:
-                    print('| |' if self._aux else '|-|', end=' ')
+                    print(f'{self.getCell(1)}' if self._aux else f'{self.getCell(2)}', end=' ')
 
                 elif self.selectedPiece != None:
 
                     if j == self.selectedPiece:
-                        print('\033[1m'+f'|{j.getSkin()}|', end='\033[0;0m ')
+                        print('\033[33m\033[1m'+f'|{j.getSkin()}|', end='\033[0;0m ')
                     
                     else:
                         print(f'|{j.getSkin()}|', end=' ')
@@ -182,11 +191,11 @@ class Chess:
         self.createPiece(King, ['E',8], 'Enemy')
 
     def createPiece(self, piece: Piece, xy: list, team: str) -> Piece:
-        Piece_ = piece(len(self.pieces[0]) + len(self.pieces[1]), xy)
+        Piece_ = piece(len(self.pieces[0]) + len(self.pieces[1]), xy, self.Team.get(team))
         self.pieces[self.Team.get(team)].update({Piece_.id: Piece_})
 
     def clearLine(self) -> None:
-        print("\033[A                                                            \033[A")
+        print("\033[A                                                                                                                            \033[A")
 
     def getPiecesOnboard(self) -> list:
         return self.pieces
@@ -199,8 +208,6 @@ class Chess:
 def main():
     chess = Chess()
     while True:
-
-        # time.sleep(1)
 
         chess.updateFrame()
 
