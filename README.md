@@ -1,5 +1,4 @@
 # Chess.py
-
 The code is not finished.
 
 ### Design: <br/>
