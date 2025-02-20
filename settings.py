@@ -1,2 +1,2 @@
 class Settings:
-    sel_skin: str = 'letters'
+    sel_skin: str = 'pieces'

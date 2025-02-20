@@ -1,4 +1,4 @@
-from ..system._methods import input_interpreter
+from ..system._methods import input_interpreter, throw_error
 from ..Board import Board, Empty_Cell
 from .pieces.Piece import Piece
 from .pieces.Pawn import Pawn
@@ -34,23 +34,15 @@ class Controller:
                 self.board.insert_in_table(cell_obj=piece_class(id_n=n, team=team), coords=[x, y])
         
     def new_turn(self):
-        # declare team turn
-        self.set_team_turn("white")
+        for team in ["white", "black"]:
+            # declare team turn
+            self.set_team_turn(team)
         
-        # Select Piece
-        self.select_piece()
-        
-        # Do Action
-        self.move()
-        
-        # declare team turn
-        self.set_team_turn("black")
-        
-        # Select Piece
-        self.select_piece()
-        
-        # Do Action
-        self.move()
+            # Select Piece
+            self.select_piece()
+            
+            # Do Action
+            self.move()
         
     def select_piece(self) -> bool | Piece:
         # Check if its valid
@@ -59,40 +51,39 @@ class Controller:
                 entry = input("Select a piece: ")
                 x, y = input_interpreter(entry)
                 selected_piece = self.board.get_piece((x, y))
-                break
 
             except:
-                print("Invalid position")
-                time.sleep(1)
-                return False  # Failed
+                throw_error("Invalid position")
             
-        # Check if its not empty
-        if isinstance(selected_piece, Empty_Cell):
-            print("No piece in this position!")
-            time.sleep(1)
-            return False  # Failed
+            else:
+                # Check if its not empty
+                if isinstance(selected_piece, Empty_Cell):
+                    throw_error("No piece in this position!")
+                    
+                elif selected_piece.team != self.team_turn:
+                    throw_error("Select a piece of your team!")
+                    
+                else:
+                    break
         
         # Add new
         selected_piece.set_selected(True)
         self.selected_piece = selected_piece
-        
-        # Print table
+                
         self.show_table()
     
     def move(self):
+        # logic
         input()
         
         # Remove selected
         if self.selected_piece != None:
             self.selected_piece.set_selected(False)
             
-        # Print table
         self.show_table()
-        
+            
     def set_team_turn(self, team: str) -> None:
         self.team_turn = team
-
-        # Print table
         self.show_table()
         
     def show_table(self) -> None:
