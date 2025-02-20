@@ -1,12 +1,12 @@
 from ..system._methods import input_interpreter
 from ..board.Board import Board, Empty_Cell
-from ..pieces.Piece import Piece
-from ..pieces.Pawn import Pawn
-from ..pieces.Rook import Rook
-from ..pieces.Knight import Knight
-from ..pieces.Bishop import Bishop
-from ..pieces.Queen import Queen
-from ..pieces.King import King
+from .pieces.Piece import Piece
+from .pieces.Pawn import Pawn
+from .pieces.Rook import Rook
+from .pieces.Knight import Knight
+from .pieces.Bishop import Bishop
+from .pieces.Queen import Queen
+from .pieces.King import King
 
 class Controller:
     def __init__(self):

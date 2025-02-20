@@ -1,4 +1,4 @@
-from ..settings import Settings
+from settings import Settings
 
 class Packages:
     PIECES_SKINS_DICT: dict[str, dict[str, list[str]]] = {

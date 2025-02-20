@@ -1,9 +1,8 @@
 from ..system.Packages import Packages as pkg
 from ..system._methods import clear_screen
-from ..pieces.Piece import Piece
+from ..controller.pieces.Piece import Piece
 
 class Board:
-    
     def __init__(self):
         self.letters = pkg.LETTERS_DICT
         self.brd_skins = pkg.BOARD_SKINS_DICT
@@ -13,6 +12,7 @@ class Board:
         
     def _initialize_board(self) -> None:
         """Cria o tabuleiro inicial com as células vazias."""
+        
         white_cell = Empty_Cell(self.brd_skins["whte_cell"])
         black_cell = Empty_Cell(self.brd_skins["dark_cell"])
         
@@ -78,12 +78,3 @@ class Empty_Cell:
     def get_face(self) -> str:
         return self.face
 ###
-        
-# Testing
-if __name__=="__main__":
-    from ..pieces.Pawn import Pawn
-    
-    b1 = Board()
-    pawn = Pawn(1, "black")
-    b1.insert_in_table(coords=[2,2], cell_obj=pawn)
-    b1.print_formatted_table()

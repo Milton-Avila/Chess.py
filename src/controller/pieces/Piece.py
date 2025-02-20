@@ -1,4 +1,4 @@
-from ..system.Packages import Packages as pkg
+from ...system.Packages import Packages as pkg
 
 class Piece:
     def __init__(self, team: str):
