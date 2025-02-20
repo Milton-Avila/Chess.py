@@ -1,6 +1,6 @@
-from ..system.Packages import Packages as pkg
-from ..system._methods import clear_screen
-from ..controller.pieces.Piece import Piece
+from .system.Packages import Packages as pkg
+from .system._methods import clear_screen
+from .game.pieces.Piece import Piece
 
 class Board:
     def __init__(self):
@@ -22,14 +22,16 @@ class Board:
             for ny in range(8)
         ]
         
-    def print_formatted_table(self) -> None:
+    def print_formatted_table(self, team_turn: str) -> None:
         """Print the board on console."""
         
-        def print_cell(cell_obj: Piece | Empty_Cell) -> str:
+        def print_cell(cell_obj: Piece | Empty_Cell, team_turn: str) -> str:
             obj = cell_obj.get_face()
             wall = self.brd_skins["cell_wall"]
             pre_fmt, pos_fmt = "", ""
             
+            if cell_obj.team == team_turn:
+                pre_fmt, pos_fmt = "\033[37m\033[1m", "\033[0;0m"
             if cell_obj.is_selected:
                 pre_fmt, pos_fmt = "\033[33m\033[1m", "\033[0;0m"
             if cell_obj.is_possible_movement:
@@ -47,13 +49,14 @@ class Board:
             
             # Print the objects
             for nx in range(8):
-                print(print_cell(self.table[ny][nx]), end=" ")
+                print(print_cell(self.table[ny][nx], team_turn), end=" ")
             print()
 
         # Print the letters
         print("   ", end="")
         for letter in self.letters.keys():
             print(letter, end="   ")
+        print("\n")
 
     def insert_in_table(self, coords: tuple[int, int], cell_obj: Piece) -> None:
         x, y = coords
@@ -69,6 +72,7 @@ class Empty_Cell:
     def __init__(self, face: str):
         # Cell appearance
         self.face = face
+        self.team = ""
         
         # Color config
         self.is_selected = False

@@ -1,5 +1,10 @@
-from src.controller.Controller import Controller
+from src.game.Controller import Controller
 
-controller = Controller()
-controller.select_piece("A1")
-controller.show_table()
+def main():
+    controller = Controller()
+    
+    while True:
+        controller.new_turn()
+        
+if __name__ == "__main__":
+    main()

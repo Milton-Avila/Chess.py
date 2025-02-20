@@ -1,5 +1,5 @@
 from ..system._methods import input_interpreter
-from ..board.Board import Board, Empty_Cell
+from ..Board import Board, Empty_Cell
 from .pieces.Piece import Piece
 from .pieces.Pawn import Pawn
 from .pieces.Rook import Rook
@@ -7,10 +7,12 @@ from .pieces.Knight import Knight
 from .pieces.Bishop import Bishop
 from .pieces.Queen import Queen
 from .pieces.King import King
+import time
 
 class Controller:
     def __init__(self):
         self.board = Board()
+        self.team_turn: None | str = None
         self.selected_piece: None | Piece = None
         
         self._initialize_pieces()
@@ -31,26 +33,70 @@ class Controller:
             for n, (x, y, team) in enumerate(positions):
                 self.board.insert_in_table(cell_obj=piece_class(id_n=n, team=team), coords=[x, y])
         
-    def select_piece(self, coords: str) -> bool | Piece:
-        x, y = input_interpreter(coords)
+    def new_turn(self):
+        # declare team turn
+        self.set_team_turn("white")
         
-        # Remove old
-        if self.selected_piece:
-            self.selected_piece.set_selected(False)
+        # Select Piece
+        self.select_piece()
+        
+        # Do Action
+        self.move()
+        
+        # declare team turn
+        self.set_team_turn("black")
+        
+        # Select Piece
+        self.select_piece()
+        
+        # Do Action
+        self.move()
+        
+    def select_piece(self) -> bool | Piece:
+        # Check if its valid
+        while True:
+            try:
+                entry = input("Select a piece: ")
+                x, y = input_interpreter(entry)
+                selected_piece = self.board.get_piece((x, y))
+                break
 
-        selected_piece = self.board.get_piece((x, y))
-
+            except:
+                print("Invalid position")
+                time.sleep(1)
+                return False  # Failed
+            
         # Check if its not empty
         if isinstance(selected_piece, Empty_Cell):
-            print("Nenhuma peça nesta posição!")
-            return False  # Indica que a seleção falhou
+            print("No piece in this position!")
+            time.sleep(1)
+            return False  # Failed
         
         # Add new
         selected_piece.set_selected(True)
-        return selected_piece
+        self.selected_piece = selected_piece
+        
+        # Print table
+        self.show_table()
+    
+    def move(self):
+        input()
+        
+        # Remove selected
+        if self.selected_piece != None:
+            self.selected_piece.set_selected(False)
+            
+        # Print table
+        self.show_table()
+        
+    def set_team_turn(self, team: str) -> None:
+        self.team_turn = team
+
+        # Print table
+        self.show_table()
         
     def show_table(self) -> None:
-        self.board.print_formatted_table()
+        self.board.print_formatted_table(self.team_turn)
 
 if __name__=="__main__":
     controller = Controller()
