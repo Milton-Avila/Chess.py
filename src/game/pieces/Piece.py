@@ -1,12 +1,12 @@
 from ...system.Packages import Packages as pkg
 
 class Piece:
-    def __init__(self, team: str):
+    def __init__(self, team: str, coords: tuple[int, int]):
         self.team = team
+        self.coords = coords
         
         # Color config
         self.is_selected = False
-        self.is_possible_kill = False
         self.is_possible_movement = False
         
         # Pre-instance
@@ -18,12 +18,21 @@ class Piece:
     def set_face(self, skin_n):
         self.face = pkg.PIECES_SKINS[self.team][skin_n]
     
+    def get_coords(self) -> tuple[int, int]:
+        return self.coords
+    
+    def get_id(self) -> str:
+        return self.id
+    
+    def get_team(self) -> str:
+        return self.team
+
+    def get_possible_moves(self) -> tuple[tuple[int, int]]:
+        pass
+    
     # Color methods
     def set_selected(self, state: bool) -> None:
         self.is_selected = state
-        
-    def set_possible_kill(self, state: bool) -> None:
-        self.is_possible_kill = state
-        
+    
     def set_possible_movement(self, state: bool) -> None:
         self.is_possible_movement = state

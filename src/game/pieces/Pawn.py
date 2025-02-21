@@ -1,8 +1,8 @@
 from .Piece import Piece
 
 class Pawn(Piece):
-    def __init__(self, id_n: int, team: str) -> None:
-        super().__init__(team)
+    def __init__(self, id_n: int, team: str, coords: tuple[int, int]) -> None:
+        super().__init__(team, coords)
         
         self.id = team + "_pawn_" + str(id_n)
         self.set_face(0)
@@ -10,22 +10,21 @@ class Pawn(Piece):
         # Class exclusive
         self.already_moved = False
         
-    def get_id(self) -> str:
-        return self.id
-        
-    def get_possible_moves(self) -> list[str]:
+    def get_possible_moves(self) -> list[tuple[int, int]]:
+        possibilities_list = []
+
         # Pawn move 2 cells if it is its first move
         if not self.already_moved:
-            y_len = 2
-        else:
-            y_len = 1
-            
+            possibilities_list.append((0, 2))
+            self.already_moved = True
+
+        possibilities_list.append((0, 1))
+
         # Move up if in white team
-        if self.team == "white":
-            y_len *= -1
+        if self.team == "black":
+            return [(nx, ny*-1) for nx, ny in possibilities_list]
             
-        # ***
-        print(y_len)
+        return possibilities_list
      
 # Testing
 if __name__=="__main__":

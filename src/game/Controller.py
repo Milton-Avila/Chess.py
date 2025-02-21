@@ -7,13 +7,13 @@ from .pieces.Knight import Knight
 from .pieces.Bishop import Bishop
 from .pieces.Queen import Queen
 from .pieces.King import King
-import time
 
 class Controller:
     def __init__(self):
         self.board = Board()
         self.team_turn: None | str = None
         self.selected_piece: None | Piece = None
+        self.possible_moves_objs: list[Empty_Cell | Piece] = []
         
         self._initialize_pieces()
     
@@ -31,7 +31,7 @@ class Controller:
         # Instance positions
         for piece_class, positions in piece_positions.items():
             for n, (x, y, team) in enumerate(positions):
-                self.board.insert_in_table(cell_obj=piece_class(id_n=n, team=team), coords=[x, y])
+                self.board.insert_in_table(cell_obj=piece_class(id_n=n, coords=([x, y]), team=team))
         
     def new_turn(self):
         for team in ["white", "black"]:
@@ -59,7 +59,8 @@ class Controller:
                 # Check if its not empty
                 if isinstance(selected_piece, Empty_Cell):
                     throw_error("No piece in this position!")
-                    
+                
+                # Check if right team
                 elif selected_piece.team != self.team_turn:
                     throw_error("Select a piece of your team!")
                     
@@ -73,17 +74,42 @@ class Controller:
         self.show_table()
     
     def move(self):
-        # logic
+        # Define locations
+        selected_piece_coords = self.selected_piece.get_coords()
+        sel_x, sel_y = selected_piece_coords
+        moves_list = self.selected_piece.get_possible_moves()
+
+        # See possible moves
+        for mov_x, mov_y in moves_list:
+            # Define
+            pos_x = sel_x + mov_x
+            pos_y = sel_y + mov_y
+
+            # Check index range
+            if (pos_x >= 0) and (pos_y >= 0):
+                try:
+                    move_obj = self.board.get_piece((pos_x, pos_y))
+                    move_obj.set_possible_movement(True)
+                    self.possible_moves_objs.append(move_obj)
+
+                except:
+                    pass
+
+        self.show_table()
+
+        # Select move
         input()
         
-        # Remove selected
-        if self.selected_piece != None:
-            self.selected_piece.set_selected(False)
-            
-        self.show_table()
+        # Reset selected
+        self.selected_piece.set_selected(False)
+
+        # Reset moves
+        for move_obj in self.possible_moves_objs:
+            move_obj.set_possible_movement(False)
             
     def set_team_turn(self, team: str) -> None:
         self.team_turn = team
+
         self.show_table()
         
     def show_table(self) -> None:
