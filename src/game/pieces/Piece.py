@@ -7,7 +7,6 @@ class Piece:
         
         # Color config
         self.is_selected = False
-        self.is_possible_movement = False
         
         # Pre-instance
         self.face: str = ""
@@ -33,6 +32,3 @@ class Piece:
     # Color methods
     def set_selected(self, state: bool) -> None:
         self.is_selected = state
-    
-    def set_possible_movement(self, state: bool) -> None:
-        self.is_possible_movement = state

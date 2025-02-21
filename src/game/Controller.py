@@ -1,5 +1,5 @@
 from ..system._methods import input_interpreter, throw_error
-from ..Board import Board, Empty_Cell
+from ..board.Board import Board, Cell, BoardRenderer
 from .pieces.Piece import Piece
 from .pieces.Pawn import Pawn
 from .pieces.Rook import Rook
@@ -12,8 +12,10 @@ class Controller:
     def __init__(self):
         self.board = Board()
         self.team_turn: None | str = None
-        self.selected_piece: None | Piece = None
-        self.possible_moves_objs: list[Empty_Cell | Piece] = []
+        self.sel_cell: None | Cell = None
+        self.sel_piece: None | Piece = None
+        self.boardRenderer = BoardRenderer()
+        # self.possible_moves_objs: list[Cell] = []
         
         self._initialize_pieces()
     
@@ -50,47 +52,49 @@ class Controller:
             try:
                 entry = input("Select a piece: ")
                 x, y = input_interpreter(entry)
-                selected_piece = self.board.get_piece((x, y))
+                self.sel_cell = self.board.get_cell((x, y))
+                self.sel_piece = self.sel_cell.get_piece()
 
             except:
                 throw_error("Invalid position")
             
             else:
                 # Check if its not empty
-                if isinstance(selected_piece, Empty_Cell):
+                if self.sel_piece == None:
                     throw_error("No piece in this position!")
                 
                 # Check if right team
-                elif selected_piece.team != self.team_turn:
+                elif self.sel_piece.team != self.team_turn:
                     throw_error("Select a piece of your team!")
                     
                 else:
                     break
         
         # Add new
-        selected_piece.set_selected(True)
-        self.selected_piece = selected_piece
+        self.sel_piece.set_selected(True)
                 
         self.show_table()
     
     def move(self):
         # Define locations
-        selected_piece_coords = self.selected_piece.get_coords()
-        sel_x, sel_y = selected_piece_coords
-        moves_list = self.selected_piece.get_possible_moves()
+        sel_piece_coords = self.sel_piece.get_coords()
+        sel_x, sel_y = sel_piece_coords
+        moves_list = self.sel_piece.get_possible_moves()
 
         # See possible moves
+        possible_moves_objs: list[Cell] = []
         for mov_x, mov_y in moves_list:
-            # Define
+            # Define positions
             pos_x = sel_x + mov_x
             pos_y = sel_y + mov_y
 
             # Check index range
             if (pos_x >= 0) and (pos_y >= 0):
                 try:
-                    move_obj = self.board.get_piece((pos_x, pos_y))
-                    move_obj.set_possible_movement(True)
-                    self.possible_moves_objs.append(move_obj)
+                    # Append moves
+                    move_cell = self.board.get_cell((pos_x, pos_y))
+                    move_cell.set_possible_movement(True)
+                    possible_moves_objs.append(move_cell)
 
                 except:
                     pass
@@ -98,22 +102,30 @@ class Controller:
         self.show_table()
 
         # Select move
-        input()
+        sel_move_coords: tuple[int, int] = input_interpreter(input("Select your destiny: "))
         
-        # Reset selected
-        self.selected_piece.set_selected(False)
+        if sel_move_coords in possible_moves_objs:
+            sel_move_cell = self.board.get_cell(sel_move_coords)
+            sel_move_cell.set_piece(self.sel_piece)
+            self.sel_cell.set_piece(None)
 
-        # Reset moves
-        for move_obj in self.possible_moves_objs:
-            move_obj.set_possible_movement(False)
+        # Reset selected
+        self.sel_piece.set_selected(False)
+        for move_cell in possible_moves_objs:
+            move_cell.set_possible_movement(False)
+        
+        self.show_table()
             
     def set_team_turn(self, team: str) -> None:
         self.team_turn = team
 
         self.show_table()
         
+    def get_board(self) -> list[list[Cell]]:
+        return self.board.table
+        
     def show_table(self) -> None:
-        self.board.print_formatted_table(self.team_turn)
+        self.boardRenderer.print_formatted_table(self.get_board(), self.team_turn)
 
 if __name__=="__main__":
     controller = Controller()

@@ -11,7 +11,7 @@ def throw_error(error_msg: str) -> None:
     print("\033[A                                             \033[A")
     
 def input_interpreter(coords: str) -> tuple[int, int]:
-    x = pkg.LETTERS_DICT[coords[0]]
+    x = pkg.LETTERS_DICT[coords[0].capitalize()]
     y = int(coords[1])-1
     
     return (x, y)
