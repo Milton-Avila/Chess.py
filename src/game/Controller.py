@@ -15,7 +15,6 @@ class Controller:
         self.sel_cell: None | Cell = None
         self.sel_piece: None | Piece = None
         self.boardRenderer = BoardRenderer()
-        # self.possible_moves_objs: list[Cell] = []
         
         self._initialize_pieces()
     
@@ -92,7 +91,7 @@ class Controller:
             if (pos_x >= 0) and (pos_y >= 0):
                 try:
                     # Append moves
-                    move_cell = self.board.get_cell((pos_x, pos_y))
+                    move_cell = self.get_cell((pos_x, pos_y))
                     move_cell.set_possible_movement(True)
                     possible_moves_objs.append(move_cell)
 
@@ -104,9 +103,11 @@ class Controller:
         # Select move
         sel_move_coords: tuple[int, int] = input_interpreter(input("Select your destiny: "))
         
-        if sel_move_coords in possible_moves_objs:
+        # Move if possible
+        if self.get_cell(sel_move_coords) in possible_moves_objs:
             sel_move_cell = self.board.get_cell(sel_move_coords)
             sel_move_cell.set_piece(self.sel_piece)
+            self.sel_piece.coords = sel_move_coords
             self.sel_cell.set_piece(None)
 
         # Reset selected
@@ -123,7 +124,12 @@ class Controller:
         
     def get_board(self) -> list[list[Cell]]:
         return self.board.table
+    
+    def get_cell(self, coords: tuple[int, int]) -> Cell:
+        x, y = coords
         
+        return self.get_board()[y][x]
+            
     def show_table(self) -> None:
         self.boardRenderer.print_formatted_table(self.get_board(), self.team_turn)
 

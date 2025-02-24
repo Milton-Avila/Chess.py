@@ -42,6 +42,7 @@ class BoardRenderer:
             return pre_fmt + wall + obj + wall + pos_fmt
 
     def get_piece_color(self, piece: Piece, team_turn: str) -> str:
+        """Set piece highlight color."""
         # If not empty cell
         if piece:
             # Orange if selected
@@ -53,7 +54,12 @@ class BoardRenderer:
         return ""
 
     def get_cell_color(self, cell: Cell, team_turn: str) -> str:
-        """Determina a cor do fundo da célula."""
+        """Set cell background color."""
+        piece = cell.get_piece()
         if cell.is_possible_movement:
-            return "\033[41m" if cell.get_piece() and cell.get_piece().get_team() != team_turn else "\033[44m"
+            if piece:
+                if piece.get_team() != team_turn:
+                    return "\033[41m"
+            else:
+                return"\033[44m"
         return "\033[40m" if cell.get_type() == "dark_cell" else "\033[47m"
