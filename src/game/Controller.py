@@ -33,107 +33,118 @@ class Controller:
         for piece_class, positions in piece_positions.items():
             for n, (x, y, team) in enumerate(positions):
                 self.board.insert_in_table(cell_obj=piece_class(id_n=n, coords=([x, y]), team=team))
+            
+    def _set_team_turn(self, team: str) -> None:
+        self.team_turn = team
+
+        self._show_table()
+                
+    def _show_table(self) -> None:
+        self.boardRenderer.print_formatted_table(self.board.table, self.team_turn)
         
     def new_turn(self):
         for team in ["white", "black"]:
             # declare team turn
-            self.set_team_turn(team)
+            self._set_team_turn(team)
         
             # Select Piece
-            self.select_piece()
+            selected = False
+            while not selected:
+                selected = self.select_piece()
             
             # Do Action
-            self.move()
+            moved = False
+            while not moved:
+                moved = self.move()
         
     def select_piece(self) -> bool | Piece:
         # Check if its valid
-        while True:
-            try:
-                entry = input("Select a piece: ")
-                x, y = input_interpreter(entry)
-                self.sel_cell = self.board.get_cell((x, y))
-                self.sel_piece = self.sel_cell.get_piece()
-
-            except:
-                throw_error("Invalid position")
+        try:
+            entry = input("Select a piece: ")
+            x, y = input_interpreter(entry)
+            self.sel_cell = self.board.get_cell((x, y))
+            self.sel_piece = self.sel_cell.get_piece()
             
-            else:
-                # Check if its not empty
-                if self.sel_piece == None:
-                    throw_error("No piece in this position!")
-                
-                # Check if right team
-                elif self.sel_piece.team != self.team_turn:
-                    throw_error("Select a piece of your team!")
-                    
-                else:
-                    break
+            # Check if its not empty
+            if self.sel_piece == None:
+                throw_error("No piece in this position!")
+                return False
+            
+            # Check if right team
+            elif self.sel_piece.team != self.team_turn:
+                throw_error("Select a piece of your team!")
+                return False
+
+        except Exception:
+            throw_error("Invalid position")
+            return False
         
         # Add new
         self.sel_piece.set_selected(True)
-                
-        self.show_table()
+        self._show_table()
+        return True
     
     def move(self):
-        # Define locations
-        sel_piece_coords = self.sel_piece.get_coords()
-        sel_x, sel_y = sel_piece_coords
-        moves_list = self.sel_piece.get_possible_moves()
+        if not self.get_possible_moves():
+            return False
 
-        # See possible moves
-        possible_moves_objs: list[Cell] = []
-        for mov_x, mov_y in moves_list:
-            # Define positions
-            pos_x = sel_x + mov_x
-            pos_y = sel_y + mov_y
+        if not self.do_move():
+            return False
+        
+        return True
+        
+    def get_possible_moves(self) -> bool:
+        sel_x, sel_y = self.sel_piece.get_coords()
+        possible_moves = []
 
-            # Check index range
-            if (pos_x >= 0) and (pos_y >= 0):
+        for mov_x, mov_y in self.sel_piece.get_possible_moves():
+            pos_x, pos_y = sel_x + mov_x, sel_y + mov_y
+
+            if 0 <= pos_x < 8 and 0 <= pos_y < 8:  # Garante que está dentro do tabuleiro
                 try:
-                    # Append moves
-                    move_cell = self.get_cell((pos_x, pos_y))
+                    move_cell = self.board.get_cell((pos_x, pos_y))
                     move_cell.set_possible_movement(True)
-                    possible_moves_objs.append(move_cell)
-
-                except:
+                    possible_moves.append(move_cell)
+                except IndexError:
                     pass
-
-        self.show_table()
-
-        # Select move
-        sel_move_coords: tuple[int, int] = input_interpreter(input("Select your destiny: "))
         
-        # Move if possible
-        if self.get_cell(sel_move_coords) in possible_moves_objs:
-            sel_move_cell = self.board.get_cell(sel_move_coords)
-            sel_move_cell.set_piece(self.sel_piece)
-            self.sel_piece.coords = sel_move_coords
-            self.sel_cell.set_piece(None)
-
-        # Reset selected
-        self.sel_piece.set_selected(False)
-        for move_cell in possible_moves_objs:
-            move_cell.set_possible_movement(False)
+        self._show_table()
+        self.possible_moves = possible_moves
+        return True
         
-        self.show_table()
-            
-    def set_team_turn(self, team: str) -> None:
-        self.team_turn = team
+    def do_move(self) -> bool:
+        while True:
+            try:
+                # Select move
+                entry = input("Select your destiny: ")
+                sel_move_coords = input_interpreter(entry)
+                sel_move_cell = self.board.get_cell(sel_move_coords)
 
-        self.show_table()
-        
-    def get_board(self) -> list[list[Cell]]:
-        return self.board.table
-    
-    def get_cell(self, coords: tuple[int, int]) -> Cell:
-        x, y = coords
-        
-        return self.get_board()[y][x]
-            
-    def show_table(self) -> None:
-        self.boardRenderer.print_formatted_table(self.get_board(), self.team_turn)
+                # Check if move is valid
+                if sel_move_cell not in self.possible_moves:
+                    throw_error("Invalid move! Choose a valid position.")
+                    continue
+                # Check if not ally
+                if sel_move_cell.get_piece():
+                    if sel_move_cell.get_piece().get_team() == self.team_turn:
+                        throw_error("Invalid move! Can't move into an ally.")
+                        continue
 
+                # Execute move
+                sel_move_cell.set_piece(self.sel_piece)
+                self.sel_piece.coords = sel_move_coords
+                self.sel_cell.set_piece(None)
+
+                # Reset selected
+                self.sel_piece.set_selected(False)
+                for move_cell in self.possible_moves:
+                    move_cell.set_possible_movement(False)
+
+                self._show_table()
+                return True  # Movimento realizado com sucesso
+
+            except Exception:
+                throw_error("Invalid input! Please enter a valid position.")
+        
 if __name__=="__main__":
-    controller = Controller()
-    controller.select_piece("A1")
-    controller.show_table()
+    pass
