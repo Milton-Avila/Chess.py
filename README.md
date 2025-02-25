@@ -30,5 +30,6 @@ Pawn and Knight implemented already.
   style="border-radius: 10px; width: 460px;"/>
 
 ### Left to do:
-* Add the pieces movement.
-* Add game mechanics.
+* Adjust pawn's movement.
+* Adjust colision.
+* Add game special mechanics.

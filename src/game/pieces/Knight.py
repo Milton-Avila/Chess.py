@@ -8,7 +8,7 @@ class Knight(Piece):
         self.set_face(2)
         
     def get_possible_moves(self) -> list[tuple[int, int]]:
-        possibilities_list = []
+        possibilities_list: list[tuple[int, int]] = []
 
         tup1, tup2 = (1, -1), (2, -2)
         

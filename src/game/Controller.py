@@ -85,6 +85,8 @@ class Controller:
         return True
     
     def move(self):
+        self.interpret_moves()
+        
         if not self.get_possible_moves():
             return False
 
@@ -92,24 +94,71 @@ class Controller:
             return False
         
         return True
+    
+    def interpret_moves(self):
+        sel_x, sel_y = self.sel_piece.get_coords()
+        possible_moves = self.sel_piece.get_possible_moves()
+        new_possible_moves = []
         
+        for mov_x, mov_y in possible_moves:
+            # Se um dos valores (ou ambos) for uma string, trata como movimento dinâmico
+            if isinstance(mov_x, str) or isinstance(mov_y, str):
+                # Determina o passo e a distância máxima em x
+                if isinstance(mov_x, str):
+                    if mov_x == "n":
+                        step_x = 1
+                        max_dx = 7 - sel_x  # quantos passos posso dar para a direita
+                    elif mov_x == "-n":
+                        step_x = -1
+                        max_dx = sel_x      # quantos passos para a esquerda
+                else:
+                    step_x = mov_x
+                    max_dx = abs(mov_x)
+                    
+                # Determina o passo e a distância máxima em y
+                if isinstance(mov_y, str):
+                    if mov_y == "n":
+                        step_y = 1
+                        max_dy = 7 - sel_y  # quantos passos para cima
+                    elif mov_y == "-n":
+                        step_y = -1
+                        max_dy = sel_y      # quantos passos para baixo
+                else:
+                    step_y = mov_y
+                    max_dy = abs(mov_y)
+                
+                # Para movimentos diagonais, o número máximo de passos é o mínimo das duas direções
+                if step_x != 0 and step_y != 0:
+                    max_steps = min(max_dx, max_dy)
+                else:
+                    max_steps = max_dx if step_x != 0 else max_dy
+                
+                # Adiciona, para cada passo d (1 até max_steps), o movimento (d * step_x, d * step_y)
+                for d in range(1, max_steps + 1):
+                    new_possible_moves.append((step_x * d, step_y * d))
+            else:
+                # Se não for movimento dinâmico, adiciona diretamente
+                new_possible_moves.append((mov_x, mov_y))
+                
+        self.new_possible_moves = new_possible_moves
+
     def get_possible_moves(self) -> bool:
         sel_x, sel_y = self.sel_piece.get_coords()
-        possible_moves = []
+        possible_moves_cells: list[Cell] = []
 
-        for mov_x, mov_y in self.sel_piece.get_possible_moves():
+        for mov_x, mov_y in self.new_possible_moves:
             pos_x, pos_y = sel_x + mov_x, sel_y + mov_y
 
             if 0 <= pos_x < 8 and 0 <= pos_y < 8:  # Garante que está dentro do tabuleiro
                 try:
                     move_cell = self.board.get_cell((pos_x, pos_y))
                     move_cell.set_possible_movement(True)
-                    possible_moves.append(move_cell)
+                    possible_moves_cells.append(move_cell)
                 except IndexError:
                     pass
         
         self._show_table()
-        self.possible_moves = possible_moves
+        self.possible_moves_cells = possible_moves_cells
         return True
         
     def do_move(self) -> bool:
@@ -119,9 +168,9 @@ class Controller:
                 entry = input("Select your destiny: ")
                 sel_move_coords = input_interpreter(entry)
                 sel_move_cell = self.board.get_cell(sel_move_coords)
-
+                
                 # Check if move is valid
-                if sel_move_cell not in self.possible_moves:
+                if sel_move_cell not in self.possible_moves_cells:
                     throw_error("Invalid move! Choose a valid position.")
                     continue
                 # Check if not ally
@@ -137,7 +186,7 @@ class Controller:
 
                 # Reset selected
                 self.sel_piece.set_selected(False)
-                for move_cell in self.possible_moves:
+                for move_cell in self.possible_moves_cells:
                     move_cell.set_possible_movement(False)
 
                 self._show_table()

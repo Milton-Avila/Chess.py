@@ -11,7 +11,7 @@ class Pawn(Piece):
         self.already_moved = False
         
     def get_possible_moves(self) -> list[tuple[int, int]]:
-        possibilities_list = []
+        possibilities_list: list[tuple[int, int]] = []
 
         # Pawn move 2 cells if it is its first move
         if not self.already_moved:

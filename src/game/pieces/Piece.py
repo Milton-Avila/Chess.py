@@ -26,7 +26,7 @@ class Piece:
     def get_team(self) -> str:
         return self.team
 
-    def get_possible_moves(self) -> tuple[tuple[int, int]]:
+    def get_possible_moves(self) -> list[tuple[int | str, int | str]]:
         pass
     
     # Color methods
